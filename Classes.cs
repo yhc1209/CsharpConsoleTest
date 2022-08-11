@@ -84,6 +84,20 @@ namespace testCons
             Console.WriteLine($"I am a camping Cat, my name is {Name}.");
         }
     }
+    
+    class OBJ1
+    {
+        public int id {get; set;}
+        public bool bCheck2 {get; set;}
+        public bool bCheck {get; set;}
+
+        public static string currentTime {
+            get { return DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.ffff"); }
+        }
+        public static string[] currentTimes {
+            get { return new string[] {DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.ffff"), DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.ffff")}; }
+        }
+    }
 
     // NTP test
     public class NTPClient

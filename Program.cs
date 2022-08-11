@@ -15,14 +15,115 @@ namespace testCons
     {
         static void Main(string[] args)
         {
-            func0707();
+            try
+            {
+                func0809();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("catched by Main(). " + e.Message);
+            }
+        }
+
+        static void func0809()
+        {
+            Cat cat = new Cat("Jerry", 31);
+            
+            Console.WriteLine($"{cat.GetType().GetProperty("Name")}");
+        }
+        static void func0719b()
+        {
+            try
+            {
+                Console.WriteLine("func0719b() run.");
+                throw new Exception("test 1 excp.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("catched by function. " + e.Message);
+            }
+            throw new Exception("test 2 excp.");
+        }
+
+        static void func0719()
+        {
+            // Random rnd = new Random(234);
+            Random rnd = new Random(Guid.NewGuid().GetHashCode());
+            byte[] arrB = new byte[3];
+            // Console.WriteLine($"initial array (length: {arrB.Length}): {string.Join('-', arrB)}");
+            for (int i = 0; i < 5; i++)
+            {
+                rnd.NextBytes(arrB);
+                Console.WriteLine($"#{i}  array: {string.Join('-', arrB)}");
+            }
+        }
+
+        static void func0712()
+        {
+            if (func0712a(-1) || func0712b(1))
+                Console.WriteLine("good");
+            else
+                Console.WriteLine("no way here.");
+            // [結論] or條件時，前面成立了就不會去做後面。
+        }
+
+        static bool func0712a(int a)
+        {
+            Console.WriteLine($"a is {(a < 0 ? "\b":"not")} smaller than 0.");
+            return (a < 0);
+        }
+        static bool func0712b(int b)
+        {
+            Console.WriteLine($"b is {(b > 0 ? "\b":"not")} greater than 0.");
+            return (b > 0);
+        }
+
+        static void func0711lx()
+        {
+            Process.Start("https://www.google.com");
+            Console.WriteLine("google good.");
+            // [結論] linux不能直接開網址
+        }
+
+        static void cmdParse(string[] args)
+        {
+            // ParserResult<object> res = 
+            //     Parser.Default.ParseArguments<HDOptions, HFOptions, SPOptions, EntryOptions, UninstOptions>(args);
+
+            // if (res.GetType() == typeof(NotParsed<object>))
+            // {
+            //     Globals.OutputDebugString("not parse..");
+            //     return;
+            // }
+            // else
+            // {
+            //     // Console.WriteLine($"{res.TypeInfo.Current}");
+            //     if (res.TypeInfo.Current == typeof(UninstOptions))
+            //     {
+            //         res.WithParsed<UninstOptions>(uninstall);
+            //         return;
+            //     }
+
+            //     if (init() < 0)
+            //         return;
+            //     else
+            //     {
+            //         res
+            //         .WithParsed<HDOptions>(settingAction)
+            //         .WithParsed<HFOptions>(hiddenFolderAction)
+            //         .WithParsed<SPOptions>(safetyProcessAction)
+            //         .WithParsed<EntryOptions>(openEntry);
+            //     }
+            // }
         }
 
         static void func0707()
         {
             NTPClient client = new NTPClient();
-            Console.WriteLine(client.GetNtpTime(8).ToString("yyyy/MM/dd-HH:mm:ss.ffff"));
-            Console.WriteLine(DateTime.Now.ToString("yyyy/MM/dd-HH:mm:ss.ffff"));
+            for (int i = 0; i < 5; i++)
+                Console.WriteLine($"[{i}] - " + client.GetNtpTime(8).ToString("yyyy/MM/dd-HH:mm:ss.ffff"));
+
+            Console.WriteLine(DateTime.Now.ToString("C#的時間：yyyy/MM/dd-HH:mm:ss.ffff"));
         }
 
         static void func4PublicQuickly(string[] args)
