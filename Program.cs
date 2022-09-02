@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Pipes;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using CommandLine;
 
 namespace testCons
 {
@@ -15,14 +17,75 @@ namespace testCons
     {
         static void Main(string[] args)
         {
-            try
-            {
-                func0809();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("catched by Main(). " + e.Message);
-            }
+            // try
+            // {
+            //     Console.WriteLine("args: " + string.Join(", ", args));
+            //     func0818(args);
+            // }
+            // catch (Exception e)
+            // {
+            //     Console.WriteLine("catched by Main(). " + e.Message);
+            // }
+            func0901();
+        }
+
+        static void func0901()
+        {
+            string output = string.Format("\"Age\":{0},\"Name\":\"{1}\"", 32, "Leo");
+            Console.WriteLine("{" + output + "}");
+        }
+
+        static void func0818(string[] cmds)
+        {
+            Parser.Default.ParseArguments<Verb1>(cmds)
+                .WithParsed<Verb1>(Verb1.Verb1Func);
+        }
+
+        static void func0816(string content)
+        {
+            // ushort us16 = ushort.MaxValue;
+            // // short s16 = ((short)us16);
+            // short s16 = short.Parse(us16.ToString());
+            // Console.WriteLine($"us16={us16}, (short)us16={s16}");
+            // byte[] bus16 = BitConverter.GetBytes(us16);
+            // byte[] bs16 = BitConverter.GetBytes(s16);
+            // Console.WriteLine($"bus16={string.Join(", ", bus16)}, bus16={string.Join(", ", bs16)}");
+
+            // named pipe test
+            NamedPipeClientStream pipe = new NamedPipeClientStream("StealthDefenseLx_PIPE");
+            byte[] buf, package = new byte[6];
+
+            buf = BitConverter.GetBytes((ushort)0);
+            Array.Copy(buf, 0, package, 4, buf.Length);
+            //
+            buf = Encoding.UTF8.GetBytes(content);
+            Console.WriteLine($"{content}->[{string.Join('|', buf)}]");
+            Array.Resize<byte>(ref package, package.Length + buf.Length);
+            Array.Copy(buf, 0, package, 6, buf.Length);
+            int len = package.Length - 4;
+            buf = BitConverter.GetBytes(len);
+            Array.Copy(buf, 0, package, 0, 4);
+            Console.WriteLine($"package: <{string.Join('|', package)}>");
+
+            string contentRec = Encoding.UTF8.GetString(package);
+            Console.WriteLine("content recover: " + content);
+
+            pipe.Connect();
+            pipe.Write(package, 0, package.Length);
+            pipe.Close();
+            Console.WriteLine("done.");
+
+            // // named pipe server
+            // NamedPipeServerStream pipeSvr = new NamedPipeServerStream("StealthDefenseLx_PIPE", PipeDirection.InOut);
+            // pipeSvr.WaitForConnection();
+            // Console.WriteLine("connect!");
+            // byte[] bLen = new byte[4];
+            // pipeSvr.Read(bLen, 0, 4);
+            // int len = BitConverter.ToInt32(bLen);
+            // byte[] bContent = new byte[len];
+            // pipeSvr.Read(bContent, 0, len);
+            // Console.WriteLine($"package: <{string.Join('|', bContent)}>");
+            // pipeSvr.Close();
         }
 
         static void func0809()

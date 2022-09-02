@@ -43,6 +43,7 @@ namespace testCons
         //         return (this.Age == cat.Age && this.Name.ToLower() == cat.Name.ToLower());
         //     }
         // }
+        
         public override bool Equals(object obj)
         {
             try
