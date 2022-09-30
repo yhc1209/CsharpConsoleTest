@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -26,13 +27,169 @@ namespace testCons
             // {
             //     Console.WriteLine("catched by Main(). " + e.Message);
             // }
-            func0901();
+            func0930();
+        }
+
+        static void func0930()
+        {
+            Human joe = new Human{
+                Name = "Joe", Age = 27
+            };
+            // joe.Age = 3;
+
+            string jstxt = JsonSerializer.Serialize<Human>(joe);
+            Console.WriteLine(jstxt);
+            Human joe_c =  JsonSerializer.Deserialize<Human>(jstxt);
+            Console.WriteLine("name={0}, age={1}", joe_c.Name, joe_c.Age);
+        }
+
+        static void func0929()
+        {
+            AsyncTest.Main().Wait();
+        }
+
+        static void func0928()
+        {
+            List<Cat> cats = new List<Cat>();
+            cats.Add(new Cat("Tom", 5));
+            cats.Add(new Cat("John", 3));
+            cats.Add(new Cat("Tony", 5));
+            Cat[] cats2 = cats.ToArray(), cats3;
+
+            string jsontxt = JsonSerializer.Serialize<List<Cat>>(cats);
+            Console.WriteLine(jsontxt);
+            Console.WriteLine(JsonSerializer.Serialize<Cat[]>(cats2));
+
+            cats3 = JsonSerializer.Deserialize<Cat[]>(jsontxt);
+            Console.WriteLine("cats3:");
+            foreach (Cat c in cats3)
+                Console.WriteLine($" - {c}");
+            // [結論] List與Array可以互通
+        }
+
+        static void func0923()
+        {
+            // bool b = true;
+            // byte[] bb = BitConverter.GetBytes(b);
+            // Console.WriteLine(string.Join<byte>(',', bb));
+
+            // string s = string.Empty;
+            // byte[] bs = Encoding.UTF8.GetBytes(s);
+            // Console.WriteLine(string.Join<byte>(',', bs));
+
+            Cat catA = new Cat("Amy", 3);
+            Cat catB = new Cat("Ben", 4);
+            Console.WriteLine($"{catA} -> {catA.GetHashCode()}");
+            Console.WriteLine($"{catB} -> {catB.GetHashCode()}");
+            Console.WriteLine($"catA.Name -> {catA.Name.GetHashCode()}");
+            Console.WriteLine($"catB.Name -> {catB.Name.GetHashCode()}");
+
+            // catB = catA;
+            catB.CopyFrom(catA);
+
+            Console.WriteLine($"{catA} -> {catA.GetHashCode()}");
+            Console.WriteLine($"{catB} -> {catB.GetHashCode()}");
+            Console.WriteLine($"catA.Name -> {catA.Name.GetHashCode()}");
+            Console.WriteLine($"catB.Name -> {catB.Name.GetHashCode()}");
+        }
+
+        static void func0921()
+        {
+            string homedrive = Environment.GetEnvironmentVariable("HOMEDRIVE");       // c: 
+            Console.WriteLine($"homedrive={homedrive}");
+            string windir = Environment.GetEnvironmentVariable("WINDIR");             // c:\windows
+            Console.WriteLine($"windir={windir}");
+            string programs = Environment.GetEnvironmentVariable("PROGRAMFILES");     // c:\program files
+            Console.WriteLine($"programs={programs}");
+            string userprofile = Environment.GetEnvironmentVariable("USERPROFILE");   // c:\users\<name>
+            Console.WriteLine($"userprofile={userprofile}");
+            string appdata = (userprofile + "\\AppData");                             // c:\users\<name>\appdata
+            Console.WriteLine($"appdata={appdata}");
+            string appdata2 = Environment.GetEnvironmentVariable("appdata");   // c:\users\<name>
+            Console.WriteLine($"appdata2={appdata2}");
+            string desktop = (userprofile + "\\Desktop");                             // c:\users\<name>\desktop
+            Console.WriteLine($"desktop={desktop}");
+            string programdata = Environment.GetEnvironmentVariable("PROGRAMDATA");   // c:\programdata
+            Console.WriteLine($"programdata={programdata}");
+        }
+
+        static void func0916()
+        {
+            // // string[] bs = null;
+            // string[] bs = {"Nancy", "Cindy"};
+            // Cat c = new Cat("Tom", 12, bs);
+            // Console.WriteLine("no exception.");
+
+            char[] splitor = {'*', '+'};
+            string[] strarr = "123* 25.34+48 +".Split(splitor, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            Console.WriteLine($"strarr.Length = {strarr.Length};");
+            Console.WriteLine(">>" + string.Join(',', strarr) + "<<");
+        }
+
+        static void func0914()
+        {
+            // // uint a = uint.MaxValue;  // Exception
+            // ushort a = ushort.MaxValue;
+            // // uint a = int.MaxValue;   // Exception
+            // // int a = int.MaxValue;    // Exception
+            // byte[] arr = new byte[a];
+            // Console.WriteLine($"a={a}");
+            // Console.WriteLine($"arr.Length={arr.Length}");
+            
+            // uint a = uint.MaxValue;
+            // int b = 100;
+            // Console.WriteLine($"a={a}; b={b}; a-b={a-b}");
+            
+            int i = int.MaxValue;
+            // int i = 0;
+            
+            Console.WriteLine($"i={i}; ui={((uint)i)};");
+            // [結論] int為正數時強行轉換為uint都可以是正確的數字
+        }
+
+        static void func0907()
+        {
+            // package
+            ushort type = 2;
+            string folder = "C:\\Path\\to\\the\\folder";
+            byte[] bFolder = Encoding.UTF8.GetBytes(folder);
+            byte[] package = new byte[6 + bFolder.Length];
+            BitConverter.GetBytes(package.Length - 4).CopyTo(package, 0);
+            BitConverter.GetBytes(type).CopyTo(package, 4);
+            bFolder.CopyTo(package, 6);
+
+            // named pipe
+            // NamedPipeClientStream pipe = new NamedPipeClientStream(".", "eventhandleTest0907", PipeDirection.Out);
+            NamedPipeClientStream pipe = new NamedPipeClientStream("SD3_ReadOnlySchedule");
+            Console.WriteLine("start connecting.");
+            try
+            {
+                pipe.Connect(1000);
+                if (pipe.IsConnected)
+                {
+                    Console.WriteLine("connected!");
+                    pipe.Write(package);
+                    Console.WriteLine("sent!");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.GetType().Name);
+                Console.WriteLine(e.Message);
+            }
+            pipe.Close();
+            Console.WriteLine("done.");
         }
 
         static void func0901()
         {
-            string output = string.Format("\"Age\":{0},\"Name\":\"{1}\"", 32, "Leo");
+            // string output = string.Format("\"Age\":{0},\"Name\":\"{1}\"", 32, "Leo");
+            // string output = "\"Age\":3,  \"Name\":\"\"";
+            string output = "\"Age\":5";
+            // string output = string.Empty;
             Console.WriteLine("{" + output + "}");
+            Cat cat = JsonSerializer.Deserialize<Cat>("{" + output + "}");
+            Console.WriteLine(cat);
         }
 
         static void func0818(string[] cmds)

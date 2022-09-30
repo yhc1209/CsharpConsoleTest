@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.Json;
+using System.Collections.Generic;
 
 namespace testCons
 {
@@ -9,10 +10,12 @@ namespace testCons
     {
         public string Name {get; set;}
         public int Age {get; set;}
+        public List<string> Babies {get; set;}
 
         public Cat()
         {
             Age = 1;
+            Name = string.Empty;
         }
         public Cat(string name, int age)
         {
@@ -20,6 +23,13 @@ namespace testCons
             Age = age;
         }
 
+        public Cat(string name, int age, IEnumerable<string> babies)
+        {
+            Name = name;
+            Age = age;
+            Babies = new List<string>();
+            Babies.AddRange(babies);
+        }
         public static Cat Load(string json)
         {
             return JsonSerializer.Deserialize<Cat>(json);
@@ -58,7 +68,15 @@ namespace testCons
 
         public override string ToString()
         {
-            return $"{Name} is a {Age}-year-old Cat.";
+            if (Name == null)
+                return $"<NULL> is a {Age} year-old Cat.";
+            else
+            {
+                if (Name.Length == 0)
+                    return $"<NoName> is a {Age} year-old Cat.";
+                else
+                    return $"{Name} is a {Age} year-old Cat.";
+            }
         }
 
         public static T Produce<T>(string name) where T: Cat, new()
@@ -66,6 +84,13 @@ namespace testCons
             T cat = new T();
             cat.Name = name;
             return cat;
+        }
+
+        public void CopyFrom(Cat org)
+        {
+            Name = org.Name;
+            Age = org.Age;
+            Babies = org.Babies;
         }
     }
 
