@@ -27,7 +27,23 @@ namespace testCons
             // {
             //     Console.WriteLine("catched by Main(). " + e.Message);
             // }
-            func0930();
+            func1108();
+        }
+
+        static void func1108()
+        {
+            // func0707();
+            NTPClient ntp = new NTPClient("time.windows.com");
+            // ntp.ShowAllIps();
+            ntp.GetNtpPackage();
+
+            Console.WriteLine($"------------\n{NTPClient2.GetNetworkTime()}");
+        }
+
+        static void func1104()
+        {
+            J4T j4t = new J4T();
+            j4t.CheckId();
         }
 
         static void func0930()
@@ -41,6 +57,7 @@ namespace testCons
             Console.WriteLine(jstxt);
             Human joe_c =  JsonSerializer.Deserialize<Human>(jstxt);
             Console.WriteLine("name={0}, age={1}", joe_c.Name, joe_c.Age);
+            Console.WriteLine($"{Environment.GetFolderPath(Environment.SpecialFolder.System)}\\SearchProtocolHost.exe");
         }
 
         static void func0929()
@@ -194,8 +211,15 @@ namespace testCons
 
         static void func0818(string[] cmds)
         {
-            Parser.Default.ParseArguments<Verb1>(cmds)
-                .WithParsed<Verb1>(Verb1.Verb1Func);
+            var result = Parser.Default.ParseArguments<Verb1, Verb2>(cmds);
+            Console.WriteLine("this time parse: " + result.TypeInfo.Current.Name);
+            Console.WriteLine("errors: ");
+            foreach (var err in result.Errors)
+                Console.WriteLine(err);
+
+            result
+            .WithParsed<Verb1>(Verb1.Verb1Func)
+            .WithParsed<Verb2>(Verb2.Verb2Func);
         }
 
         static void func0816(string content)
@@ -337,13 +361,19 @@ namespace testCons
             // }
         }
 
+        /// <summary>NTP test</summary>
         static void func0707()
         {
-            NTPClient client = new NTPClient();
+            NTPClient1 client = new NTPClient1();
             for (int i = 0; i < 5; i++)
-                Console.WriteLine($"[{i}] - " + client.GetNtpTime(8).ToString("yyyy/MM/dd-HH:mm:ss.ffff"));
-
-            Console.WriteLine(DateTime.Now.ToString("C#的時間：yyyy/MM/dd-HH:mm:ss.ffff"));
+                Console.WriteLine($"[{i}] - NTPClient: {client.GetNtpTime(8).ToString("yyyy/MM/dd-HH:mm:ss.ffff")}");
+            Console.WriteLine();
+            for (int i = 0; i < 5; i++)
+                Console.WriteLine(DateTime.Now.ToString("C#的時間：yyyy/MM/dd-HH:mm:ss.ffff"));
+            Console.WriteLine();
+            for (int i = 0; i < 5; i++)
+                Console.WriteLine($"[{i}] - client2：{NTPClient2.GetNetworkTime().ToString("yyyy/MM/dd-HH:mm:ss.ffff")}");
+            Console.WriteLine();
         }
 
         static void func4PublicQuickly(string[] args)
