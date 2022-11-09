@@ -28,16 +28,49 @@ namespace testCons
             //     Console.WriteLine("catched by Main(). " + e.Message);
             // }
             func1108();
+            // func1109(0.5f);
+        }
+
+        static void func1109(float f)
+        {
+            Console.WriteLine($"intput: {f}");
+
+            byte[] bf = SwapEndianness(BitConverter.GetBytes(f));
+            Console.Write("Hex: 0x");
+            foreach (byte b in bf)
+                Console.Write($"{b:X02}");
+            Console.WriteLine();
+
+            Console.Write("Bin: ");
+            string bin = string.Empty;
+            foreach (byte b in bf)
+            {
+                bin += $"{((b & 0x80) >> 7)}{((b & 0x40) >> 6)}{((b & 0x20) >> 5)}{((b & 0x10) >> 4)}";
+                bin += $"{((b & 0x08) >> 3)}{((b & 0x04) >> 2)}{((b & 0x02) >> 1)}{((b & 0x01) >> 0)}";
+            }
+            Console.WriteLine($"{bin.Substring(0, 1)}-{bin.Substring(1, 8)}-{bin.Substring(9)}");
+        }
+
+        static byte[] SwapEndianness(byte[] x)
+        {
+            byte[] y = new byte[x.Length];
+            for (int i = 0; i < x.Length; i++)
+                y[i] = x[x.Length - i - 1];
+            
+            return y;
         }
 
         static void func1108()
         {
-            // func0707();
-            NTPClient ntp = new NTPClient("time.windows.com");
-            // ntp.ShowAllIps();
-            ntp.GetNtpPackage();
+            // // func0707();
+            // NTPClient ntp = new NTPClient("time.windows.com");
+            // // ntp.ShowAllIps();
+            // ntp.GetNtpPackage();
 
-            Console.WriteLine($"------------\n{NTPClient2.GetNetworkTime()}");
+            // Console.WriteLine($"------------\n{NTPClient2.GetNetworkTime()}");
+
+            NTPmsg msg = NTPClient1109.GetNtpMsg("time.windows.com", 123, 8);
+            Console.WriteLine($"The time: {msg.TheTime.ToString("yyyy/MM/dd-HH:mm:ss.fff")}");
         }
 
         static void func1104()
