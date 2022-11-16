@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Pipes;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -27,8 +28,85 @@ namespace testCons
             // {
             //     Console.WriteLine("catched by Main(). " + e.Message);
             // }
-            func1108();
-            // func1109(0.5f);
+            func1116();
+        }
+
+        static void func1116()
+        {
+            string orgFile1 = @"data\dir1\text1.txt";
+            string orgFile2 = @"data\dir1\text2.txt";
+            string zipFile = @"data\dir1\texts.zip";
+
+            // 檔案建立壓縮檔(刪掉原始)
+            try
+            {
+                string zipDir = $"{Path.GetDirectoryName(orgFile1)}\\texts";
+                Directory.CreateDirectory(zipDir);
+                File.Move(orgFile1, $"{zipDir}\\{Path.GetFileName(orgFile1)}");
+                ZipFile.CreateFromDirectory(zipDir, zipFile);
+                Directory.Delete(zipDir, true);
+                Console.WriteLine("建立壓縮檔完成。");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"建立壓縮檔失敗！ ({e.GetType().Name} - {e.Message})");
+            }
+
+            // 檔案加入壓縮檔(刪掉原始)
+            try
+            {
+                using (FileStream fs = new FileStream(zipFile, FileMode.Open))
+                {
+                    using (ZipArchive zipArchive = new ZipArchive(fs, ZipArchiveMode.Update))
+                    {
+                        ZipArchiveEntry zae = zipArchive.CreateEntry(Path.GetFileName(orgFile2));
+                        using (StreamWriter sw = new StreamWriter(zae.Open()))
+                        {
+                            using (StreamReader sr = new StreamReader(orgFile2))
+                            {
+                                while (!sr.EndOfStream)
+                                    sw.WriteLine(sr.ReadLine());
+                            }
+                        }
+                    }
+                }
+                File.Delete(orgFile2);
+                Console.WriteLine("加入壓縮檔完成。");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"加入壓縮檔失敗！ ({e.GetType().Name} - {e.Message})");
+            }
+        }
+
+        static void func1114()
+        {
+            // // queue test
+            // Queue<string> q = new Queue<string>();
+            // q.Enqueue("Hello");
+            // q.Enqueue("world");
+            // q.Enqueue("123");
+            // q.Enqueue("456");
+            // q.Enqueue("789");
+
+            // JsonSerializerOptions op = new JsonSerializerOptions();
+            // op.WriteIndented = true;
+            // string js = JsonSerializer.Serialize<Queue<string>>(q, op);
+            // Console.WriteLine(js);
+
+            // fileinfo test
+            // FileInfo file = new FileInfo(@"data\dir1\file1.txt");
+            // file.MoveTo(@"data\dir2\file1.txt");
+            // Console.WriteLine($"file path = {file.FullName}");
+            // Console.WriteLine(file.OpenText().ReadToEnd());
+
+            DirectoryInfo di = new DirectoryInfo("data\\dir1");
+            FileInfo[] files = di.GetFiles("file*.txt");
+            foreach (FileInfo file in files)
+                file.MoveTo($"data\\dir2\\{file.Name}");
+
+            foreach (FileInfo file in files)
+                Console.WriteLine(file.FullName);
         }
 
         static void func1109(float f)
@@ -71,6 +149,7 @@ namespace testCons
 
             NTPmsg msg = NTPClient1109.GetNtpMsg("time.windows.com", 123, 8);
             Console.WriteLine($"The time: {msg.TheTime.ToString("yyyy/MM/dd-HH:mm:ss.fff")}");
+            Console.WriteLine($"System time: {DateTime.Now}");
         }
 
         static void func1104()
