@@ -129,6 +129,7 @@ namespace testCons
     public class J4T
     {
         public int id = 1;
+        public bool flag;
 
         public J4T()
         {

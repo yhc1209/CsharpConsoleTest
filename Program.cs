@@ -28,7 +28,205 @@ namespace testCons
             // {
             //     Console.WriteLine("catched by Main(). " + e.Message);
             // }
-            func1116();
+            func1129(args[0]);
+        }
+
+        static void func1129(string path)
+        {
+            PathNode root = PathNode.GetNodeInfo(path, false);
+            root.GetChildrenInfo(false);
+            Console.WriteLine($"{root.Path}\\{root.Name}{(root.IsFile?"":"\\")}");
+            if (root.IsFile)
+                return;
+
+            foreach (PathNode node in root.Children)
+            {
+                node.GetChildrenInfo(false);
+                Console.WriteLine($"  {(node==root.Children[^1]?"└":"├")} {node.Name}{(node.IsFile?"":"\\")}");
+                if (node.IsFile)
+                    continue;
+                    
+                foreach (PathNode nn in node.Children)
+                    Console.WriteLine($"  {(node==root.Children[^1]?" ":"│")}   {(nn==node.Children[^1]?"└":"├")} {nn.Name}{(nn.IsFile?"":"\\")}");
+            }
+
+            JsonSerializerOptions op = new JsonSerializerOptions { WriteIndented = true };
+            string jstxt = JsonSerializer.Serialize<PathNode>(root, op);
+            File.WriteAllText("test1129.json", jstxt);
+        }
+
+        static void func1128A()
+        {
+            string jsontxt = "{\"id\":3,\"flag\":1}";
+            J4T obj = JsonSerializer.Deserialize<J4T>(jsontxt);
+            Console.WriteLine($"id={obj.id} flag={obj.flag}");
+        }
+
+        static void func1128()
+        {
+            byte[] package = new byte[6];
+            BitConverter.GetBytes((ushort)31415).CopyTo(package, 0);
+            BitConverter.GetBytes(1).CopyTo(package, 2);
+            
+            byte[] response;
+            if (sendNreceive(package, out response))
+            {
+                Aes _aes = Aes.Create();
+                _aes.Mode = CipherMode.CBC;
+                _aes.Padding = PaddingMode.PKCS7;
+                _aes.Key = Encoding.ASCII.GetBytes("w-3L49!`12AS$420=+jsHS30keJs52zd");
+                _aes.IV = Encoding.ASCII.GetBytes("SDefenseCryption");
+                byte[] plain = _aes.CreateDecryptor().TransformFinalBlock(response, 2, response.Length - 2);
+
+                string jstxt = Encoding.UTF8.GetString(plain);
+                Console.WriteLine(jstxt);
+            }
+        }
+
+        /// <summary>發送與接收。</summary>
+        /// <param name="requst">要傳送的資訊。包含型態(SDSVC_CMD)與內容。</param>
+        /// <param name="response">回傳的資訊。包含型態(SDSVC_CMD)與內容，若與request型態不相符或長度錯誤則會回傳null。</param>
+        /// <remarks>requst只需指定訊息型態與內容，此函式會自動加上封包長度與session ID。</remarks>
+        private static bool sendNreceive(byte[] requst, out byte[] response)
+        {
+            string _pipename = "StealthDefense3_ServicePipe";
+            int _sid = Process.GetCurrentProcess().SessionId;
+            try
+            {
+                // header adding (package length and session id)
+                byte[] packageH = new byte[requst.Length + 8];
+                BitConverter.GetBytes(packageH.Length - 4).CopyTo(packageH, 0);
+                BitConverter.GetBytes(_sid).CopyTo(packageH, 4);
+                requst.CopyTo(packageH, 8);
+
+                // check namedpipe existing
+                if (Directory.GetFiles("\\\\.\\pipe\\", _pipename).Length == 0)
+                    throw new Exception($"namedpipe \'{_pipename}\' not found.");
+
+                using (NamedPipeClientStream pipe = new NamedPipeClientStream(_pipename))
+                {
+                    pipe.Connect(500);
+                    // send
+                    pipe.Write(packageH, 0, packageH.Length);
+
+                    // receive
+                    response = new byte[4];
+                    pipe.Read(response, 0, 4);
+                    int len = BitConverter.ToInt32(response, 0);
+                    Array.Resize(ref response, len);
+                    if (pipe.Read(response, 0, len) != len)
+                        throw new Exception("Response length is not match.");
+                    if (requst[0] != response[0] || requst[1] != response[1])
+                        throw new Exception("Response type is not match.");
+                }
+
+                return true;
+            }
+            catch (Exception excp)
+            {
+                response = null;
+                // _lastExcp = excp;
+                // SDSVC_CMD type = (SDSVC_CMD)BitConverter.ToUInt16(requst, 0);
+                // _log.LogExcp($"Failed to communicate with SD_service.\nMessge Type: {type}", excp, EventLogEntryType.Error);
+                return false;
+            }
+        }
+
+        static void func1125()
+        {
+            int[] arr = {1, 2, 3};
+
+            if (arr[3] > 0)
+                Console.WriteLine("ooo");
+            else
+                Console.WriteLine("xxx");
+        }
+
+        static void func1118()
+        {
+            string filename = "data\\dir1\\textfile1118.txt";
+            // // 前置作業
+            // using (StreamWriter sw = new StreamWriter(filename, false, Encoding.Unicode))
+            // {
+            //     for (int i = 0; i < 10; i++)
+            //         sw.WriteLine($"text #{i}");
+            //     sw.Flush();
+
+            //     Console.WriteLine($"sw.BaseStream.Length: {sw.BaseStream.Length}, sw.BaseStream.Position: {sw.BaseStream.Position}");
+            // }
+            
+            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite))
+            {
+                using (StreamReader sr = new StreamReader(fs, Encoding.Unicode))
+                using (StreamWriter sw = new StreamWriter(fs, Encoding.Unicode))
+                {
+                    string line = sr.ReadLine();
+                    Console.WriteLine($"sr reads one line: \'{line}\'");
+                    Console.Write($"sr.BaseStream.Position: {sr.BaseStream.Position}, ");
+                    Console.Write($"sw.BaseStream.Position: {sw.BaseStream.Position}, ");
+                    Console.Write($"fs.Position: {fs.Position}");
+                    Console.WriteLine(Environment.NewLine);
+
+                    sw.BaseStream.Seek(0, SeekOrigin.End);
+                    Console.WriteLine("sw seeks to end of file.");
+                    Console.Write($"sr.BaseStream.Position: {sr.BaseStream.Position}, ");
+                    Console.Write($"sw.BaseStream.Position: {sw.BaseStream.Position}, ");
+                    Console.Write($"fs.Position: {fs.Position}");
+                    Console.WriteLine(Environment.NewLine);
+
+                    sw.WriteLine($"hello, world.");
+                    sw.Flush();
+                    Console.WriteLine("sw writes a line.");
+                    Console.Write($"sr.BaseStream.Position: {sr.BaseStream.Position}, ");
+                    Console.Write($"sw.BaseStream.Position: {sw.BaseStream.Position}, ");
+                    Console.Write($"fs.Position: {fs.Position}");
+                    Console.WriteLine();
+                    Console.Write($"sr.BaseStream.Length: {sr.BaseStream.Length}, ");
+                    Console.Write($"sw.BaseStream.Length: {sw.BaseStream.Length}, ");
+                    Console.Write($"fs.Length: {fs.Length}");
+                    Console.WriteLine(Environment.NewLine);
+                }
+            }
+        }
+
+        static void func1116C()
+        {
+            string zipFile = @"data\dir1\texts.zip";
+            using (FileStream fs = new FileStream(zipFile, FileMode.Open))
+            {
+                using (ZipArchive zipArchive = new ZipArchive(fs, ZipArchiveMode.Update))
+                {
+                    foreach (ZipArchiveEntry entry in zipArchive.Entries)
+                    {
+                        ZipArchiveEntry ee = entry;
+                        ee.Delete();
+                        Console.WriteLine($"{ee.Name}已刪除。");
+                        break;
+                        // using (StreamReader sr = new StreamReader(entry.Open()))
+                        // {
+                        //     Console.WriteLine($"[{entry.Name}] {entry.LastWriteTime}");
+                        //     while (!sr.EndOfStream)
+                        //         Console.WriteLine(sr.ReadLine());
+                        //     Console.WriteLine($"{entry.FullName}");
+                        // }
+                        // Console.WriteLine();
+                    }
+                    Console.WriteLine("end");
+                }
+            }
+        }
+
+        static void func1116B()
+        {
+            FileStream fs = new FileStream("file1.txt", FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+            StreamWriter sw = new StreamWriter(fs);
+            sw.WriteLine("Hello world.");
+            sw.Flush();
+            Console.WriteLine($"file length: {sw.BaseStream.Length}");
+            sw.Close();
+            sw.Dispose();
+            Console.WriteLine("end");
+            // [結論] sw.Close()不會關閉fs
         }
 
         static void func1116()
@@ -59,6 +257,7 @@ namespace testCons
                 {
                     using (ZipArchive zipArchive = new ZipArchive(fs, ZipArchiveMode.Update))
                     {
+                        Console.WriteLine($"entry count before: {zipArchive.Entries.Count}");
                         ZipArchiveEntry zae = zipArchive.CreateEntry(Path.GetFileName(orgFile2));
                         using (StreamWriter sw = new StreamWriter(zae.Open()))
                         {
@@ -68,6 +267,7 @@ namespace testCons
                                     sw.WriteLine(sr.ReadLine());
                             }
                         }
+                        Console.WriteLine($"entry count after: {zipArchive.Entries.Count}");
                     }
                 }
                 File.Delete(orgFile2);
