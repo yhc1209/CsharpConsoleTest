@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Net;
 using CommandLine;
 
 namespace testCons
@@ -19,16 +20,305 @@ namespace testCons
     {
         static void Main(string[] args)
         {
-            // try
+            try
+            {
+                // Console.WriteLine("args: " + string.Join(", ", args));
+                Console.WriteLine("start");
+                string str = null;
+                Console.WriteLine(str.Length);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.GetType()} - {e.Message}");
+            }
+        }
+
+        // arraysegment test
+        static void func1230()
+        {
+            string[] arr1 = {"alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel"};
+            // ArraySegment<string> seg1 = new ArraySegment<string>(arr1, 2, 6);
+            ArraySegment<string> seg1 = arr1;
+
+            foreach (string e in seg1)
+                Console.WriteLine(e);
+
+            // Console.WriteLine("slice at index 1.");
+            // seg1 = seg1.Slice(1);
+            // foreach (string e in seg1)
+            //     Console.WriteLine(e);
+
+            // Console.WriteLine("arr2:");
+            // string[] arr2 = seg1.ToArray();
+            // foreach (string e in arr2)
+            //     Console.WriteLine(e);
+
+            // Console.WriteLine("arr3':");
+            // string[] arr3 = seg1.Array;
+            // foreach (string e in arr3)
+            //     Console.WriteLine(e);
+        }
+
+        static void func1227(string path)
+        {
+            if (path.Length == 0)
+                path = Environment.GetEnvironmentVariable("SYSTEMDRIVE");
+            Console.WriteLine($"path: {path}");
+            PathNode node = PathNode.GetNodeInfo(path, false);
+            foreach (PathNode pn in node.Children)
+                Console.WriteLine($" - {pn.Path}\\{pn.Name}{(pn.IsFile?"":"\\")}");
+        }
+
+        static void func1226C(string ipa, string ipb)
+        {
+            // IPAddress ip = IPAddress.Parse(input);
+            // Console.WriteLine($"{ip} =>");
+            // Console.WriteLine($"<{string.Join('|', ip.GetAddressBytes())}>");
+
+            // format check
+            IPAddress ipBg, ipEd;
+            if (!IPAddress.TryParse(ipa, out ipBg) || !IPAddress.TryParse(ipb, out ipEd))
+            {
+                Console.WriteLine("Failed to parse.");
+                return;
+            }
+
+            if (ipBg.AddressFamily != ipEd.AddressFamily)
+            {
+                Console.WriteLine("起始位址與結束位址格式不一致。");
+                return;
+            }
+
+            // range check
+            byte[] ip1 = ipBg.GetAddressBytes();
+            byte[] ip2 = ipEd.GetAddressBytes();
+            bool bIp1IsSmaller = false;
+            for (int i = 0; i < ip1.Length; i += 4)
+            {
+                uint ip1s = BitConverter.ToUInt32(ip1, i);
+                uint ip2s = BitConverter.ToUInt32(ip2, i);
+                if (bIp1IsSmaller = (ip1s < ip2s))
+                    break;
+            }
+
+            if (bIp1IsSmaller)
+                Console.WriteLine($"[DlgIPRang] {ipBg} to {ipEd}");
+            else
+                Console.WriteLine($"[DlgIPRang] {ipEd} to {ipBg}");
+
+            Console.WriteLine($"{ipBg} =v4=> {ipBg.MapToIPv4()}");
+            Console.WriteLine($"{ipBg} =v6=> {ipBg.MapToIPv6()}");
+        }
+
+        static void func1226B(string input)
+        {
+            Console.WriteLine($"input: {input}");
+            
+            string output = string.Empty;
+            if (!input.Contains("://"))
+            {
+                if (Uri.CheckHostName(input) == UriHostNameType.IPv6)
+                    input = $"https://[{input}]";
+            }
+            Uri uri = new UriBuilder(input).Uri;
+            Console.WriteLine($"// uri scheme       : {uri.Scheme}");
+            Console.WriteLine($"// uri Authority    : {uri.Authority}");
+            // protocol
+            if (uri.Scheme == "http" && !input.Contains("http://"))
+                output += "https://";
+            else
+                output += $"{uri.Scheme}://";
+            // hostname
+            output += uri.Host;
+            // port
+            if (uri.IsDefaultPort && !input.Contains($":{uri.Port}"))   // 若使用者輸入port有在前面補0會錯
+                output += ":9443";
+            else
+                output += $":{uri.Port}";
+            // path
+            if (uri.AbsolutePath == "/")
+                output += "/api/client";
+            else
+                output += uri.AbsolutePath;
+            
+            Console.WriteLine($"output: {output}");
+        }
+        static void func1226(string input)
+        {
+            // #region 自動轉換URL
+            // string[] bufs;
+            // string rest, protocol = string.Empty, ip = string.Empty, port = string.Empty, path = string.Empty;
+            // rest = input;
+
+            // if (rest.Contains("://"))
             // {
-            //     Console.WriteLine("args: " + string.Join(", ", args));
-            //     func0818(args);
+            //     bufs = rest.Split("://");   // [protocol]://[ip:port/path]
+            //     protocol = bufs[0];
+            //     rest = rest.Substring(protocol.Length + 3);
             // }
-            // catch (Exception e)
+
+            // if (rest.Contains('/'))
             // {
-            //     Console.WriteLine("catched by Main(). " + e.Message);
+            //     bufs = rest.Split('/');     // [ip:port]/[path]
+            //     path = rest.Substring(bufs[0].Length + 1);
+            //     rest = bufs[0];
             // }
-            func1129(args[0]);
+
+            // if (rest.Contains(':'))
+            // {
+            //     bufs = rest.Split(':');     // [ip]:[port]
+            //     port = bufs[1];
+            //     rest = bufs[0];   
+            // }
+
+            // ip = rest;
+            // if (protocol == string.Empty)
+            //     protocol = "https";
+            // if (port == string.Empty)
+            //     port = "9443";
+            // if (path == string.Empty)
+            //     path = "api/client";
+
+            // string url = $"{protocol}://{ip}:{port}/{path}";
+            // #endregion
+
+            Console.WriteLine($"scheme ? {Uri.CheckSchemeName(input)}");
+            Console.WriteLine($"HostNameType ? {Uri.CheckHostName(input)}");
+            // if (Uri.CheckHostName(input) == UriHostNameType.IPv6)
+            // {
+            //     if (!input.Contains('['))
+            //         input = $"[{input}]";
+            // }
+            // else
+            // {
+            //     int idx = input.IndexOf("://");
+
+            // }
+            // if (!Uri.CheckSchemeName(input))
+            //     input = $"https://{input}";
+
+            // Uri uri = new Uri(input);
+            Uri uri = new UriBuilder(input).Uri;
+
+            // Console.WriteLine($"uri.Fragment={uri.Fragment}");
+            // Console.WriteLine($"uri.Segments={uri.Segments}");
+            // Console.WriteLine($"uri.UserInfo={uri.UserInfo}");
+            // Console.WriteLine($"uri.UserEscaped={uri.UserEscaped}");
+            // Console.WriteLine($"uri.Authority={uri.Authority}");
+            // Console.WriteLine($"uri.DnsSafeHost={uri.DnsSafeHost}");
+            // Console.WriteLine($"uri.IdnHost={uri.IdnHost}");
+            Console.WriteLine($"uri.Host={uri.Host}");
+            Console.WriteLine($"uri.HostNameType={uri.HostNameType}");
+            Console.WriteLine($"uri.Scheme={uri.Scheme}");
+            Console.WriteLine($"uri.Port={uri.Port}");
+            Console.WriteLine($"uri.IsDefaultPort={uri.IsDefaultPort}");
+            // Console.WriteLine($"uri.IsFile={uri.IsFile}");
+            // Console.WriteLine($"uri.LocalPath={uri.LocalPath}");
+            Console.WriteLine($"uri.AbsolutePath={uri.AbsolutePath}");
+            // Console.WriteLine($"uri.PathAndQuery={uri.PathAndQuery}");
+            // Console.WriteLine($"uri.Query={uri.Query}");
+            Console.WriteLine($"uri.OriginalString={uri.OriginalString}");
+            Console.WriteLine($"uri.ToString()={uri.ToString()}");
+
+            Console.WriteLine(uri.AbsoluteUri);
+        }
+
+        static void func1221C()
+        {
+            // DateTime dt = DateTime.UtcNow;
+            // DateTime dt = DateTime.Parse("2022/12/21 04:20:00");
+            DateTime dt = new DateTime(2022, 12, 21, 04, 20, 00, DateTimeKind.Local);
+            Console.WriteLine($"UTC time: {dt}, kind={dt.Kind}");
+            Console.WriteLine(TimeZoneInfo.Local);
+            // foreach (TimeZoneInfo info in TimeZoneInfo.GetSystemTimeZones())
+            //     Console.WriteLine(info);
+
+            // Console.WriteLine(TimeZoneInfo.ConvertTimeFromUtc(dt, TimeZoneInfo.Local));
+            Console.WriteLine(dt + TimeZoneInfo.Local.BaseUtcOffset);
+        }
+        static void func1221B()
+        {
+            string jstxt = "{\"id\":523,\"flag\":true,\"str\":\"just for test\",\"obj\":{\"Name\":\"apple\",\"Number\":33}}";
+            try
+            {
+                Dictionary<string, object> dict = JsonSerializer.Deserialize<Dictionary<string, object>>(jstxt);
+                foreach (string k in dict.Keys)
+                {
+                    Console.WriteLine($"{k,5} >> {dict[k]}");
+                }
+            }
+            catch (Exception excp)
+            {
+                Console.WriteLine($"[{excp.GetType().Name}] - {excp.Message}");
+            }
+        }
+        static void func1221()
+        {
+            Queue<string> queue = new Queue<string>();
+            queue.Enqueue("apple 1");
+            queue.Enqueue("apple 2");
+            queue.Enqueue("apple 3");
+
+            // // good
+            // string dq;
+            // while (queue.TryDequeue(out dq))
+            //     Console.WriteLine($"pop: {dq}");
+
+            Console.WriteLine(queue.Dequeue());
+            Console.WriteLine(queue.Dequeue());
+            Console.WriteLine(queue.Dequeue());
+            Console.WriteLine(queue.Dequeue()); // InvalidOperationException: Queue empty
+        }
+
+        static void func1213()
+        {
+            string jstxt = "{\"id\":523,\"flag\":true,\"str\":\"just for test\",\"obj\":{\"Name\":\"apple\",\"Number\":33}}";
+            try
+            {
+                J4T j1 = JsonSerializer.Deserialize<J4T>(jstxt);
+                // J4T j1 = Newtonsoft.Json.JsonConvert.DeserializeObject<J4T>(jstxt);
+
+                jstxt = JsonSerializer.Serialize<J4T>(j1);
+                Console.WriteLine(jstxt);
+            }
+            catch (Exception excp)
+            {
+                Console.WriteLine($"[{excp.GetType().Name}] - {excp.Message}");
+            }
+            // [結論] Newtonsoft.Json可以接受\t
+        }
+
+        static void func1201()
+        {
+            // // precondition
+            // J4T j = new J4T {
+            //     flag = true, obj = new C1 {Name = "apple", Number = 33}, str = "just for test"
+            // };
+            // string jstxt = JsonSerializer.Serialize<J4T>(j);
+            // Console.WriteLine(jstxt);
+
+            // [test] 同名不同型態的屬性做JSON parse
+            // string jstxt = "{\"id\":2,\"flag\":true,\"str\":\"just for test\",\"obj\":{\"Name\":\"apple\",\"Number\":33}}";
+            string jstxt = "{}";
+            try
+            {
+                J4T j1 = JsonSerializer.Deserialize<J4T>(jstxt);
+                jstxt = JsonSerializer.Serialize<J4T>(j1);
+                Console.WriteLine(jstxt);
+            }
+            catch (Exception excp)
+            {
+                Console.WriteLine($"[{excp.GetType().Name}] - {excp.Message}");
+            }
+        }
+
+        static void func1129A()
+        {
+            string strA = "hello", strB = null;
+            if ((strB = strA) == null)
+                Console.WriteLine($"It is null! strA={(strA==null?"null":strA)} strB={(strB==null?"null":strB)}");
+            else
+                Console.WriteLine($"It is not null! strA={(strA==null?"null":strA)} strB={(strB==null?"null":strB)}");
         }
 
         static void func1129(string path)
@@ -57,9 +347,9 @@ namespace testCons
 
         static void func1128A()
         {
-            string jsontxt = "{\"id\":3,\"flag\":1}";
+            string jsontxt = "{\"flag\":true,\"str\":null}";
             J4T obj = JsonSerializer.Deserialize<J4T>(jsontxt);
-            Console.WriteLine($"id={obj.id} flag={obj.flag}");
+            Console.WriteLine($"id={obj.id} flag={obj.flag} str={(obj.str==null?"null":obj.str)}");
         }
 
         static void func1128()
@@ -354,8 +644,8 @@ namespace testCons
 
         static void func1104()
         {
-            J4T j4t = new J4T();
-            j4t.CheckId();
+            // J4T j4t = new J4T();
+            // j4t.CheckId();
         }
 
         static void func0930()

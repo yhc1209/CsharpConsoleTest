@@ -128,8 +128,12 @@ namespace testCons
     // J4T
     public class J4T
     {
-        public int id = 1;
-        public bool flag;
+        public int id {get; init;} = 1;
+        public bool? flag {get; set;}
+        public string str {get; set;} = "hey";
+        // public C1 obj {get; set;}
+        public C2 obj {get; set;}
+        public object[] arr {get; set;} = {};
 
         public J4T()
         {
@@ -140,5 +144,16 @@ namespace testCons
         {
             Console.WriteLine($"Id = {id}");
         }
+    }
+
+    public class C1
+    {
+        public string Name {get; set;}
+        public int Number {get; set;}
+    }
+    public class C2
+    {
+        public string Name {get; set;}
+        public int Count {get; set;}
     }
 }
