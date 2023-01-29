@@ -22,7 +22,7 @@ namespace testCons
             try
             {
                 // Console.WriteLine("args: " + string.Join(", ", args));
-                Console.WriteLine("hello world.");
+                Console.WriteLine("hello world. 0129");
             }
             catch (Exception e)
             {
