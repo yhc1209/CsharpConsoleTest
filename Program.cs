@@ -19,40 +19,39 @@ namespace testCons
     {
         static void Main(string[] args)
         {
-            // try
-            // {
-            //     Console.WriteLine("args: " + string.Join(", ", args));
-            //     func0818(args);
-            // }
-            // catch (Exception e)
-            // {
-            //     Console.WriteLine("catched by Main(). " + e.Message);
-            // }
-            func1129(args[0]);
+            try
+            {
+                // Console.WriteLine("args: " + string.Join(", ", args));
+                Console.WriteLine("hello world.");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("catched by Main(). " + e.Message);
+            }
         }
 
         static void func1129(string path)
         {
-            PathNode root = PathNode.GetNodeInfo(path, false);
-            root.GetChildrenInfo(false);
-            Console.WriteLine($"{root.Path}\\{root.Name}{(root.IsFile?"":"\\")}");
-            if (root.IsFile)
-                return;
+            // PathNode root = PathNode.GetNodeInfo(path, false);
+            // root.GetChildrenInfo(false);
+            // Console.WriteLine($"{root.Path}\\{root.Name}{(root.IsFile?"":"\\")}");
+            // if (root.IsFile)
+            //     return;
 
-            foreach (PathNode node in root.Children)
-            {
-                node.GetChildrenInfo(false);
-                Console.WriteLine($"  {(node==root.Children[^1]?"└":"├")} {node.Name}{(node.IsFile?"":"\\")}");
-                if (node.IsFile)
-                    continue;
+            // foreach (PathNode node in root.Children)
+            // {
+            //     node.GetChildrenInfo(false);
+            //     Console.WriteLine($"  {(node==root.Children[^1]?"└":"├")} {node.Name}{(node.IsFile?"":"\\")}");
+            //     if (node.IsFile)
+            //         continue;
                     
-                foreach (PathNode nn in node.Children)
-                    Console.WriteLine($"  {(node==root.Children[^1]?" ":"│")}   {(nn==node.Children[^1]?"└":"├")} {nn.Name}{(nn.IsFile?"":"\\")}");
-            }
+            //     foreach (PathNode nn in node.Children)
+            //         Console.WriteLine($"  {(node==root.Children[^1]?" ":"│")}   {(nn==node.Children[^1]?"└":"├")} {nn.Name}{(nn.IsFile?"":"\\")}");
+            // }
 
-            JsonSerializerOptions op = new JsonSerializerOptions { WriteIndented = true };
-            string jstxt = JsonSerializer.Serialize<PathNode>(root, op);
-            File.WriteAllText("test1129.json", jstxt);
+            // JsonSerializerOptions op = new JsonSerializerOptions { WriteIndented = true };
+            // string jstxt = JsonSerializer.Serialize<PathNode>(root, op);
+            // File.WriteAllText("test1129.json", jstxt);
         }
 
         static void func1128A()
