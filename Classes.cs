@@ -130,7 +130,7 @@ namespace testCons
     {
         public int id {get; init;} = 1;
         public bool? flag {get; set;}
-        public string str {get; set;} = "hey";
+        public string str {get; set;}
         // public C1 obj {get; set;}
         public C2 obj {get; set;}
         public object[] arr {get; set;} = {};
