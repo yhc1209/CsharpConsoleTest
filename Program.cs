@@ -476,26 +476,26 @@ namespace testCons
 
         static void func1129(string path)
         {
-            PathNode root = PathNode.GetNodeInfo(path, false);
-            root.GetChildrenInfo(false);
-            Console.WriteLine($"{root.Path}\\{root.Name}{(root.IsFile?"":"\\")}");
-            if (root.IsFile)
-                return;
+            // PathNode root = PathNode.GetNodeInfo(path, false);
+            // root.GetChildrenInfo(false);
+            // Console.WriteLine($"{root.Path}\\{root.Name}{(root.IsFile?"":"\\")}");
+            // if (root.IsFile)
+            //     return;
 
-            foreach (PathNode node in root.Children)
-            {
-                node.GetChildrenInfo(false);
-                Console.WriteLine($"  {(node==root.Children[^1]?"└":"├")} {node.Name}{(node.IsFile?"":"\\")}");
-                if (node.IsFile)
-                    continue;
+            // foreach (PathNode node in root.Children)
+            // {
+            //     node.GetChildrenInfo(false);
+            //     Console.WriteLine($"  {(node==root.Children[^1]?"└":"├")} {node.Name}{(node.IsFile?"":"\\")}");
+            //     if (node.IsFile)
+            //         continue;
                     
-                foreach (PathNode nn in node.Children)
-                    Console.WriteLine($"  {(node==root.Children[^1]?" ":"│")}   {(nn==node.Children[^1]?"└":"├")} {nn.Name}{(nn.IsFile?"":"\\")}");
-            }
+            //     foreach (PathNode nn in node.Children)
+            //         Console.WriteLine($"  {(node==root.Children[^1]?" ":"│")}   {(nn==node.Children[^1]?"└":"├")} {nn.Name}{(nn.IsFile?"":"\\")}");
+            // }
 
-            JsonSerializerOptions op = new JsonSerializerOptions { WriteIndented = true };
-            string jstxt = JsonSerializer.Serialize<PathNode>(root, op);
-            File.WriteAllText("test1129.json", jstxt);
+            // JsonSerializerOptions op = new JsonSerializerOptions { WriteIndented = true };
+            // string jstxt = JsonSerializer.Serialize<PathNode>(root, op);
+            // File.WriteAllText("test1129.json", jstxt);
         }
 
         static void func1128A()
