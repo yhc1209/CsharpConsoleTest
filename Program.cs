@@ -22,10 +22,157 @@ namespace testCons
         {
             try
             {
+                DateTime? dt1 = null;//new DateTime(2022, 12, 09, 12, 12, 9);
+                DateTime? dt2 = new DateTime(2022, 12, 09, 12, 12, 10);
+                double diff = (dt1 - dt2).Value.TotalMilliseconds;
+                Console.WriteLine($"dt1 - dt2 = {Math.Abs(diff)} (ms)");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.GetType()} - {e.Message}");
+                Console.WriteLine(e.StackTrace);
+            }
+        }
+
+        static void func0112()
+        {
+            Task
+        }
+
+        static void func0112B(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                Task.Delay(1000, token);
+                Console.WriteLine($"[{DateTime.}]")
+            }
+        }
+
+        static void func0111z()
+        {
+            string[] MailList = {"abcd83129@gmail.com"};
+            System.Net.Mail.MailMessage msg = new System.Net.Mail.MailMessage();
+            //收件者，以逗號分隔不同收件者 ex "test@gmail.com,test2@gmail.com"
+            msg.To.Add(string.Join(",", MailList));
+            msg.From = new System.Net.Mail.MailAddress("test2@gmail.com", "測試郵件", System.Text.Encoding.UTF8);
+            //郵件標題 
+            msg.Subject = "有收到嗎?";
+            //郵件標題編碼  
+            msg.SubjectEncoding = System.Text.Encoding.UTF8;
+            //郵件內容
+            msg.Body = "<p>Hello world.</p>";
+            msg.IsBodyHtml = true;
+            msg.BodyEncoding = System.Text.Encoding.UTF8;//郵件內容編碼 
+            msg.Priority = System.Net.Mail.MailPriority.Normal;//郵件優先級 
+            //建立 SmtpClient 物件 並設定 Gmail的smtp主機及Port 
+            #region 其它 Host
+            /*
+            *  outlook.com smtp.live.com port:25
+            *  yahoo smtp.mail.yahoo.com.tw port:465
+            */
+            #endregion
+
+            System.Net.Mail.SmtpClient MySmtp = new System.Net.Mail.SmtpClient("smtp.gmail.com", 587);
+            //設定你的帳號密碼
+            MySmtp.Credentials = new System.Net.NetworkCredential("How@TrustONE.com.tw", "");
+            //Gmial 的 smtp 使用 SSL
+            MySmtp.EnableSsl = true;
+            MySmtp.Send(msg);
+        }
+        static void func0110()
+        {
+            string str = "AcBbCa";
+            int Times = 100;
+            int tic = Environment.TickCount;
+            for (int i = 0; i < Times; i++)
+                str.ToLower();
+            int toc = Environment.TickCount - tic;
+            Console.WriteLine($"{Times} times string.toLower() costs {toc} ms.");
+
+            // string path = "\\\\192.168.9.41";
+            // string s1 = System.IO.Path.GetDirectoryName(path);
+            // string s2 = System.IO.Path.GetFileName(path);
+            // Console.WriteLine($"s1={s1}\ns2={s2}");
+        }
+        static void func0106b()
+        {
+            List<J4T> arr = new List<J4T> {
+                new J4T {id = 3, str = "help"},
+                new J4T {id = 5, str = "see"}
+            };
+            // J4T[] arr = {
+            //     new J4T {id = 3, str = "help"},
+            //     new J4T {id = 5, str = "see"}
+            // };
+
+            func0106c(arr[1]);
+            Console.WriteLine(arr[1].str);
+        }
+        static void func0106c(J4T obj)
+        {
+            obj.str = "emo";
+        }
+        static void func0106()
+        {
+
+            ushort[] arr1 = null;
+            ushort[] arr2 = {};
+            // method 2
+            string arr1s = (arr1==null?"":string.Join(',', arr1));
+            string arr2s = (arr2==null?"":string.Join(',', arr2));
+            if (arr1s == arr2s)
+                Console.WriteLine("same");
+            else
+                Console.WriteLine($"diiferent (arr1s={arr1s}; arr2s={arr2s})");
+            // method 1
+            // if (arr1?.Length == arr2?.Length)
+            // {
+            //     Console.WriteLine("in");
+            //     if (arr1?.Length > 0)
+            //     {
+            //         if (string.Join(',', arr1) != string.Join(',', arr2))
+            //         {
+            //             Console.WriteLine("different");
+            //             return;
+            //         }
+            //     }
+            //     Console.WriteLine("same");
+            // }
+            // else
+            //     Console.WriteLine("different");
+
+            // // string str = "alpha;bravo;charlie;delta";
+            // string str = null;
+            // string[] ss = str?.Split(';');
+            // if (ss == null)
+            //     Console.WriteLine("ss is null");
+            // else
+            //     Console.WriteLine($"split:[{string.Join(',', ss)}]");
+                
+            // int i = 0;
+            // int? ii = null;
+            // if (ii < i)
+            //     Console.WriteLine("good");
+            // else
+            //     Console.WriteLine("bad");
+        }
+
+        static void func0104()
+        {
+            try
+            {
                 // Console.WriteLine("args: " + string.Join(", ", args));
                 Console.WriteLine("start");
                 string str = null;
-                Console.WriteLine(str.Length);
+                // string str = "abcd";
+                int? len = str?.Length;
+                Console.WriteLine($"{(len==null?"null":len)} > 3 ? {len > 3}");
+
+                Console.WriteLine($"(int)len = {(int)len}");    // InvalidOperationException thrown while len is null
+
+                // [conclusion] 
+                // 1. null可以跟數字比大小，結果一定是false
+                // 2. ?.滿好用
             }
             catch (Exception e)
             {
@@ -118,8 +265,14 @@ namespace testCons
             if (!input.Contains("://"))
             {
                 if (Uri.CheckHostName(input) == UriHostNameType.IPv6)
-                    input = $"https://[{input}]";
+                {
+                    if (input.StartsWith('[') && input.EndsWith(']'))
+                        input = $"https://{input}";
+                    else
+                        input = $"https://[{input}]";
+                }
             }
+            Console.WriteLine($"input => {input}");
             Uri uri = new UriBuilder(input).Uri;
             Console.WriteLine($"// uri scheme       : {uri.Scheme}");
             Console.WriteLine($"// uri Authority    : {uri.Authority}");
